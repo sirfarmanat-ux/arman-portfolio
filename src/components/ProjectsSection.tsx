@@ -35,7 +35,8 @@ const artworks: Artwork[] = [
 ];
 
 const ProjectsSection: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  // 👇 Default set to "graphic"
+  const [activeCategory, setActiveCategory] = useState<string>('graphic');
 
   const categories = [
     { id: 'graphic', label: 'Graphic Design' },
