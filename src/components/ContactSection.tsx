@@ -26,6 +26,10 @@ const ContactSection = () => {
     const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
     const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
+    console.log("Service ID:", SERVICE_ID);
+    console.log("Template ID:", TEMPLATE_ID);
+    console.log("Public Key:", PUBLIC_KEY);
+
     emailjs.send(
       SERVICE_ID!,
       TEMPLATE_ID!,
@@ -40,7 +44,8 @@ const ContactSection = () => {
       setStatus("✅ Message sent successfully!");
       setFormData({ name: '', email: '', message: '' });
     })
-    .catch(() => {
+    .catch((error) => {
+      console.error("EmailJS error:", error);
       setStatus("❌ Failed to send message. Please try again.");
     });
   };
