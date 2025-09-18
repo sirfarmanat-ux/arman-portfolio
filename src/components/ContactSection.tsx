@@ -1,24 +1,35 @@
-import React, { useState } from 'react';
-import { Phone, Mail, Instagram, MapPin, Send } from 'lucide-react';
-import emailjs from '@emailjs/browser';
+import React, { useState, useEffect } from "react";
+import { Phone, Mail, Instagram, MapPin, Send } from "lucide-react";
+import emailjs from "@emailjs/browser";
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    name: "",
+    email: "",
+    message: "",
   });
 
   const [status, setStatus] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Debug env variables on component load (to check deployment issues)
+  useEffect(() => {
+    console.log("✅ Env test:", {
+      SERVICE_ID: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      TEMPLATE_ID: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      PUBLIC_KEY: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+    });
+  }, []);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("Sending...");
 
@@ -26,36 +37,39 @@ const ContactSection = () => {
     const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
     const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-    console.log("Service ID:", SERVICE_ID);
-    console.log("Template ID:", TEMPLATE_ID);
-    console.log("Public Key:", PUBLIC_KEY);
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      console.error("❌ Missing EmailJS environment variables");
+      setStatus("❌ Configuration error. Contact admin.");
+      return;
+    }
 
-    emailjs.send(
-      SERVICE_ID!,
-      TEMPLATE_ID!,
-      {
-        from_name: formData.name,
-        from_email: formData.email,
-        message: formData.message,
-      },
-      PUBLIC_KEY
-    )
-    .then(() => {
+    try {
+      await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          message: formData.message,
+        },
+        PUBLIC_KEY
+      );
+
       setStatus("✅ Message sent successfully!");
-      setFormData({ name: '', email: '', message: '' });
-    })
-    .catch((error) => {
-      console.error("EmailJS error:", error);
-      setStatus("❌ Failed to send message. Please try again.");
-    });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("❌ EmailJS error:", error);
+      setStatus("❌ Failed to send message. Please try again later.");
+    }
   };
 
   return (
     <section id="contact" className="py-20 bg-amber-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Title */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
-            LET'S CONNECT
+            LET&apos;S CONNECT
           </h2>
           <p className="text-2xl font-serif italic text-rose-800">
             Ready to work together?
@@ -68,8 +82,8 @@ const ContactSection = () => {
           <div className="space-y-8">
             <h3 className="text-2xl font-bold text-black mb-6">Get In Touch</h3>
             <p className="text-lg text-gray-700 leading-relaxed mb-8">
-              I'm always excited to work on new projects and collaborate with creative minds. 
-              Let's bring your vision to life!
+              I&apos;m always excited to work on new projects and collaborate
+              with creative minds. Let&apos;s bring your vision to life!
             </p>
 
             <div className="space-y-6">
@@ -91,7 +105,10 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium text-black">Email</p>
-                  <a href="mailto:sirfarman.at@gmail.com" className="text-gray-600 hover:text-rose-800">
+                  <a
+                    href="mailto:sirfarman.at@gmail.com"
+                    className="text-gray-600 hover:text-rose-800"
+                  >
                     sirfarman.at@gmail.com
                   </a>
                 </div>
@@ -104,7 +121,12 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium text-black">Instagram</p>
-                  <a href="https://instagram.com/offooweirdo" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-rose-800">
+                  <a
+                    href="https://instagram.com/offooweirdo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-rose-800"
+                  >
                     @offooweirdo
                   </a>
                 </div>
@@ -165,7 +187,9 @@ const ContactSection = () => {
               </button>
             </form>
 
-            {status && <p className="mt-4 text-center text-gray-700">{status}</p>}
+            {status && (
+              <p className="mt-4 text-center text-gray-700">{status}</p>
+            )}
           </div>
         </div>
       </div>
